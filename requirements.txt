@@ -1,0 +1,9 @@
+sanic
+sanic-ext
+jinja2
+markdown
+google-genai
+google-generativeai
+python-dotenv
+nh3
+asyncer

@@ -1,0 +1,298 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{{ title|default("Title") }} - AIpedia</title>
+    <style>
+      body {
+        background: no-repeat
+          url("https://s.ytimg.com/yt/imgbin/www-refreshbg-vflC3wnbM.png") 0 0;
+        background-color: #ebebeb;
+        background-repeat: repeat;
+        color: #44413c;
+        line-height: 1.6;
+        padding: 0;
+        margin: 0;
+        max-width: 100%;
+      }
+
+      a {
+        color: #36c;
+        text-decoration: none;
+      }
+
+      a:visited {
+        color: #6a60b0;
+      }
+
+      .container {
+        margin: 0 auto;
+        padding: 20px;
+        min-height: 100vh;
+        max-width: 800px;
+      }
+
+      .header {
+        border-bottom: 2px solid #44413c;
+        padding-bottom: 10px;
+        margin-bottom: 20px;
+      }
+
+      .entry-title {
+        margin: 0 0 5px 0;
+        font-size: 28px;
+        font-weight: normal;
+        letter-spacing: 0.5px;
+        font-family:
+          Times New Roman,
+          serif;
+      }
+
+      .entry-subtitle {
+        font-style: italic;
+        color: #66615a;
+        font-size: 16px;
+        margin-top: 0;
+        margin-bottom: 15px;
+        font-family: Arial, sans-serif;
+      }
+
+      .header-links {
+        display: flex;
+        gap: 20px;
+        margin-top: 10px;
+        align-items: center;
+      }
+
+      .header-links a {
+        color: #58544e;
+        text-decoration: none;
+        font-size: 14px;
+        font-family: Arial, sans-serif;
+      }
+
+      .header-links a:hover {
+        text-decoration: underline;
+      }
+
+      .entry-content {
+        column-gap: 40px;
+        margin-bottom: 30px;
+        text-align: justify;
+        font-size: 15px;
+        font-family: Arial, sans-serif;
+      }
+
+      .footer {
+        border-top: 1px solid #ddd;
+        padding-top: 10px;
+        margin-top: 20px;
+        font-size: 12px;
+        color: #66615a;
+        font-style: italic;
+      }
+
+      h2 {
+        font-family:
+          Times New Roman,
+          serif;
+        font-weight: 300;
+      }
+
+      h3 {
+        font-family: Arial, sans-serif;
+      }
+
+      pre,
+      code:not(pre code) {
+        background: rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
+        padding: 4px;
+        white-space: pre-wrap;
+      }
+
+      .model-dropdown {
+        appearance: none;
+        border: none;
+        -moz-appearance: none;
+        -webkit-appearance: none;
+        background: transparent;
+        color: #44413c;
+        font-size: 14px;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+      }
+
+      .model-selection {
+        margin: 0;
+        padding: 0;
+      }
+
+      .footer p {
+        margin: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div aria-label="article" class="container">
+      <div aria-label="article-header" class="header">
+        <h1 aria-label="article-title" class="entry-title">
+          {{ title|default("Title") }}
+        </h1>
+        <p aria-label="article-subtitle" class="entry-subtitle">
+          {{ subtitle|default("From AIpedia, the AI encyclopedia") }}
+        </p>
+        <div aria-label="article-actions" class="header-links">
+          <a aria-label="home" class="home-button" href="/wiki/Main_Page"
+            >Home</a
+          >
+          <a aria-label="back" class="back-button" href="#" onclick="window.back()"
+            >Back</a
+          >
+          <a
+            aria-label="edit"
+            class="edit-button"
+            href="{{ edit_url|default('#') }}"
+            onclick="window.edit()"
+            >Edit</a
+          >
+          <a
+            aria-label="search"
+            class="search-button"
+            href="{{ search_url|default('#') }}"
+            onclick="window.search()"
+            >Search</a
+          >
+          <form class="model-selection" method="POST">
+            <select
+              aria-label="select-model"
+              name="model"
+              class="model-dropdown"
+            >
+              <optgroup
+                aria-label="model-options"
+                class="models"
+                label="Select a model to generate the article with"
+              >
+                <option value="gemini-2.0-flash-lite">
+                  Gemini 2.0 Flash Lite
+                </option>
+                <option value="gemini-2.0-flash">Gemini 2.0 Flash</option>
+                <option value="gemini-2.0-flash-thinking-exp-01-21">
+                  Gemini 2.0 Flash Thinking
+                </option>
+              </optgroup>
+            </select>
+          </form>
+        </div>
+      </div>
+
+      <div
+        aria-label="article-body"
+        class="entry-content"
+        contenteditable="false"
+      >
+        {% block content %}
+        <p>{{ content|default("Article body") }}</p>
+        {% endblock %}
+      </div>
+
+      <div aria-label="article-footer" class="footer">
+        <p>{{ footer_text|default("Footer") }}</p>
+        <p>Volume {{ volume|default("I") }} • Page {{ page|default("1") }}</p>
+      </div>
+    </div>
+    <script>
+        {% raw %}
+        const currentUrl = window.location.pathname;
+
+        function edit() {
+          const article = document.querySelector(".entry-content");
+          const editButton = document.querySelector(".edit-button");
+
+          if ( article.getAttribute('contenteditable') === 'false' ) {
+          	article.setAttribute('contenteditable', 'true');
+          	editButton.textContent = "Save";
+          	article.focus();
+          } else {
+            article.setAttribute('contenteditable', 'false');
+          	editButton.textContent = "Edit";
+          }
+        }
+
+        function search() {
+          const searchTerm = window.prompt("Enter a topic to search for.");
+
+          if ( searchTerm ) {
+            window.location.href = `/wiki/${searchTerm}`;
+          }
+        }
+
+        function back() {
+        	if ( document.referrer === "" || currentUrl === "/wiki/Main_Page" ) {
+                window.location.href = "/wiki/Main_Page";
+        	} else {
+        		history.back();
+        	}
+        }
+
+        document.addEventListener("DOMContentLoaded", function () {
+            const selectElement = document.querySelector(".model-dropdown");
+            selectElement.value = localStorage.getItem("selectedModel") || "gemini-2.0-flash";
+
+            selectElement.addEventListener("change", async function (event) {
+                event.preventDefault(); // Prevents any default form submission behavior
+
+                const selectedValue = selectElement.value;
+
+                const response = await fetch("/api/select-model", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ value: selectedValue }),
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Request to set model failed with status code ${response.status}`);
+                }
+
+      	localStorage.setItem("selectedModel", selectedValue);
+                location.reload();
+            });
+        });
+
+
+        if ( currentUrl === "/wiki/Main_Page") {
+      const backButton = document.querySelector(".back-button");
+      const editButton = document.querySelector(".edit-button");
+      const homeButton = document.querySelector(".home-button");
+
+      if ( backButton ) {
+      	backButton.remove();
+      }
+
+      if ( editButton ) {
+      	editButton.remove();
+      }
+
+      if ( homeButton ) {
+      	homeButton.style.fontWeight = 600;
+      }
+        } else {
+          const searchButton = document.querySelector(".search-button");
+
+          if ( searchButton ) {
+          	searchButton.remove();
+          }
+        }
+
+        const wikiPath = currentUrl.split("/")[2];
+
+        const normalizedUrl = decodeURIComponent(`/wiki/${wikiPath.charAt(0).toUpperCase()}${wikiPath.slice(1)}`).replace(/ /g, "_");
+
+        history.pushState({}, '', normalizedUrl);
+        {% endraw %}
+    </script>
+  </body>
+</html>
