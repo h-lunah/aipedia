@@ -24,6 +24,7 @@ from globals import model
 load_dotenv()
 
 app = Sanic("aipedia")
+app.static("/static", "./static")
 Extend(app)
 
 env = Environment(loader=FileSystemLoader("templates"))
