@@ -5,8 +5,10 @@ import re
 
 from google import genai
 from google.genai import types
+from ratelimit import limits
 
 
+@limits(calls=1, period=60)
 def generate_article(topic: str, model: str) -> str:
     """
     Ask AI (Gemini 2.0 Flash Thinking) to generate an article.

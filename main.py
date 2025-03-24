@@ -14,6 +14,8 @@ import nh3
 from jinja2 import Environment, FileSystemLoader
 from dotenv import load_dotenv
 from asyncer import asyncify
+from ratelimit import RateLimitException
+from google.api_core.exceptions import ResourceExhausted
 
 from functions.generation import generate_article
 from functions.numbers import volume, page
@@ -66,6 +68,12 @@ async def wiki(request: Request, article: str) -> HTTPResponse:
                 extract_article(article_data), extensions=["fenced_code"]
             )
             subtitle = extract_subtitle(article_data)
+        except (RateLimitException, ResourceExhausted):
+            logging.warning("Resource is ratelimited\n%s", traceback.format_exc())
+            content = markdown.markdown(
+                "Please wait before requesting another article. [Go home](/wiki/Main_Page)"
+            )
+            subtitle = ""
         except Exception as e:  # do not generate error 500
             logging.warning(
                 "Caught exception:\n%s: %s\n\n%s",
