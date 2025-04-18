@@ -1,12 +1,13 @@
 #!/usr/bin/env python
 """AI powered Wikipedia clone application"""
 
+import re
 import logging
 import traceback
 from urllib.parse import unquote
 
 from sanic import Sanic, response, Request, HTTPResponse
-from sanic.exceptions import NotFound
+from sanic.exceptions import NotFound, Forbidden
 from sanic_ext import Extend
 
 import markdown
@@ -30,6 +31,46 @@ app.static("/static", "./static")
 Extend(app)
 
 env = Environment(loader=FileSystemLoader("templates"))
+
+BLOCKED_USER_AGENTS = [
+    "python-requests",
+    "scrapy",
+    "curl",
+    "wget",
+    "bot",
+    "crawler",
+    "spider",
+    "httrack",
+    "screaming",
+    "zgrab",
+    "nmap",
+]
+
+
+@app.middleware("request")
+async def security_middleware(request):
+    """Block user agents from accessing AIpedia"""
+    agent = request.headers.get("user-agent", "").lower()
+
+    if any(scraper in agent for scraper in BLOCKED_USER_AGENTS):
+        raise Forbidden("Scrapers cannot access this service")
+
+    if not any(
+        header in request.headers
+        for header in [
+            "accept",
+            "accept-language",
+            "host",
+            "accept-encoding",
+            "connection",
+            "content-type",
+            "referer",
+        ]
+    ):
+        raise Forbidden("No common headers found in your request")
+
+    if re.search(r"(\.\.|wp-admin|\.env)", request.path):
+        raise Forbidden("Suspicious request detected")
 
 
 @app.exception(NotFound)
